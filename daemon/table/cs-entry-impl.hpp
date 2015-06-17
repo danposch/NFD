@@ -54,20 +54,19 @@ public:
 
   /** \return true if entry can become stale, false if entry is never stale
    */
-  bool
+  virtual bool
   canStale() const;
 
-  void
+  virtual void
   unsetUnsolicited();
 
-  bool
+  virtual bool
   operator<(const EntryImpl& other) const;
 
-private:
-  bool
+protected:
+  virtual bool
   isQuery() const;
 
-private:
   Name m_queryName;
 };
 

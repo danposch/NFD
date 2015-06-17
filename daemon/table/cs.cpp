@@ -96,8 +96,10 @@ Cs::insert(const Data& data, bool isUnsolicited)
   bool isNewEntry = false;
   iterator it;
   // use .insert because gcc46 does not support .emplace
-  std::tie(it, isNewEntry) = m_table.insert(EntryImpl(data.shared_from_this(), isUnsolicited));
-  EntryImpl& entry = const_cast<EntryImpl&>(*it);
+  /*std::tie(it, isNewEntry) = m_table.insert(EntryImpl(data.shared_from_this(), isUnsolicited));
+  EntryImpl& entry = const_cast<EntryImpl&>(*it);*/
+  std::tie(it, isNewEntry) = m_table.emplace(data.shared_from_this(), isUnsolicited);
+  StorageEntry& entry = const_cast<StorageEntry&>(*it);
 
   entry.updateStaleTime();
 
@@ -155,7 +157,7 @@ Cs::find(const Interest& interest,
 iterator
 Cs::findLeftmost(const Interest& interest, iterator first, iterator last) const
 {
-  return std::find_if(first, last, bind(&cs::EntryImpl::canSatisfy, _1, interest));
+  return std::find_if(first, last, bind(&cs::StorageEntry::canSatisfy, _1, interest));
 }
 
 iterator
@@ -193,7 +195,7 @@ Cs::findRightmost(const Interest& interest, iterator first, iterator last) const
 iterator
 Cs::findRightmostAmongExact(const Interest& interest, iterator first, iterator last) const
 {
-  return find_last_if(first, last, bind(&EntryImpl::canSatisfy, _1, interest));
+  return find_last_if(first, last, bind(&StorageEntry::canSatisfy, _1, interest));
 }
 
 void
@@ -212,7 +214,7 @@ void
 Cs::dump()
 {
   NFD_LOG_DEBUG("dump table");
-  for (const EntryImpl& entry : m_table) {
+  for (const StorageEntry& entry : m_table) {
     NFD_LOG_TRACE(entry.getFullName());
   }
 }

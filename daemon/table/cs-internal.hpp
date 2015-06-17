@@ -31,13 +31,14 @@
 #define NFD_DAEMON_TABLE_CS_INTERNAL_HPP
 
 #include "common.hpp"
+#include "storage/storageentry.hpp"
 
 namespace nfd {
 namespace cs {
 
-class EntryImpl;
+//class StorageEntry;
 
-typedef std::set<EntryImpl> Table;
+typedef std::set<StorageEntry> Table;
 typedef Table::const_iterator iterator;
 
 } // namespace cs

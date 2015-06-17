@@ -49,8 +49,7 @@
 #define NFD_DAEMON_TABLE_CS_HPP
 
 #include "cs-policy.hpp"
-#include "cs-internal.hpp"
-#include "cs-entry-impl.hpp"
+#include "storage/storagestrategy.hpp"
 #include <ndn-cxx/util/signal.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -132,12 +131,12 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   dump();
 
 public: // enumeration
-  struct EntryFromEntryImpl
+  struct EntryFromStorageEntry
   {
     typedef const Entry& result_type;
 
     const Entry&
-    operator()(const EntryImpl& entry) const
+    operator()(const StorageEntry& entry) const
     {
       return entry;
     }
@@ -145,18 +144,18 @@ public: // enumeration
 
   /** \brief ContentStore iterator (public API)
    */
-  typedef boost::transform_iterator<EntryFromEntryImpl, iterator, const Entry&> const_iterator;
+  typedef boost::transform_iterator<EntryFromStorageEntry, iterator, const Entry&> const_iterator;
 
   const_iterator
   begin() const
   {
-    return boost::make_transform_iterator(m_table.begin(), EntryFromEntryImpl());
+    return boost::make_transform_iterator(m_table.begin(), EntryFromStorageEntry());
   }
 
   const_iterator
   end() const
   {
-    return boost::make_transform_iterator(m_table.end(), EntryFromEntryImpl());
+    return boost::make_transform_iterator(m_table.end(), EntryFromStorageEntry());
   }
 
 private: // find

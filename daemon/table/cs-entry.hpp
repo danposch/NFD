@@ -39,7 +39,7 @@ public: // exposed through ContentStore enumeration
   /** \return the stored Data
    *  \pre hasData()
    */
-  const Data&
+  virtual const Data&
   getData() const
   {
     BOOST_ASSERT(this->hasData());
@@ -49,7 +49,7 @@ public: // exposed through ContentStore enumeration
   /** \return Name of the stored Data
    *  \pre hasData()
    */
-  const Name&
+  virtual const Name&
   getName() const
   {
     BOOST_ASSERT(this->hasData());
@@ -59,7 +59,7 @@ public: // exposed through ContentStore enumeration
   /** \return full name (including implicit digest) of the stored Data
    *  \pre hasData()
    */
-  const Name&
+  virtual const Name&
   getFullName() const
   {
     BOOST_ASSERT(this->hasData());
@@ -69,7 +69,7 @@ public: // exposed through ContentStore enumeration
   /** \return whether the stored Data is unsolicited
    *  \pre hasData()
    */
-  bool
+  virtual bool
   isUnsolicited() const
   {
     BOOST_ASSERT(this->hasData());
@@ -80,7 +80,7 @@ public: // exposed through ContentStore enumeration
    *  \retval time::steady_clock::TimePoint::max() if the stored Data never expires
    *  \pre hasData()
    */
-  const time::steady_clock::TimePoint&
+  virtual const time::steady_clock::TimePoint&
   getStaleTime() const
   {
     BOOST_ASSERT(this->hasData());
@@ -90,20 +90,20 @@ public: // exposed through ContentStore enumeration
   /** \brief checks if the stored Data is stale now
    *  \pre hasData()
    */
-  bool
+  virtual bool
   isStale() const;
 
   /** \brief determines whether Interest can be satisified by the stored Data
    *  \note ChildSelector is not considered
    *  \pre hasData()
    */
-  bool
+  virtual bool
   canSatisfy(const Interest& interest) const;
 
 public: // used by generic ContentStore implementation
   /** \return true if a Data packet is stored
    */
-  bool
+  virtual bool
   hasData() const
   {
     return m_data != nullptr;
@@ -111,12 +111,12 @@ public: // used by generic ContentStore implementation
 
   /** \brief replaces the stored Data
    */
-  void
+  virtual void
   setData(shared_ptr<const Data> data, bool isUnsolicited);
 
   /** \brief replaces the stored Data
    */
-  void
+  virtual void
   setData(const Data& data, bool isUnsolicited)
   {
     this->setData(data.shared_from_this(), isUnsolicited);
@@ -124,17 +124,17 @@ public: // used by generic ContentStore implementation
 
   /** \brief refreshes stale time relative to current time
    */
-  void
+  virtual void
   updateStaleTime();
 
   /** \brief clears the entry
    *  \post !hasData()
    */
-  void
+  virtual void
   reset();
 
-private:
-  shared_ptr<const Data> m_data;
+protected:
+  mutable shared_ptr<const Data> m_data;
   bool m_isUnsolicited;
   time::steady_clock::TimePoint m_staleTime;
 };
