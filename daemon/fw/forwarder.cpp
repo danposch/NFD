@@ -58,6 +58,44 @@ Forwarder::onIncomingInterest(Face& inFace, const Interest& interest)
   // receive Interest
   NFD_LOG_DEBUG("onIncomingInterest face=" << inFace.getId() <<
                 " interest=" << interest.getName());
+
+  /**CODE FOR NACKS**/
+  std::string prefix = interest.getName().get(0).toUri();
+  if(prefix.compare("NACK") == 0)
+  {
+    //fprintf(stderr, "Forwarder::received Nack: %s\n", interest.getName().toUri().c_str());
+
+    std::string nstring = interest.getName().toUri();
+    nstring = nstring.substr(5,std::string::npos);
+    shared_ptr<Name> name = make_shared<Name>(Name(nstring));
+    shared_ptr<Interest> without_nack_prefix = make_shared<Interest>(
+                              *(interest.shared_from_this()));
+    without_nack_prefix->setName(*name);
+
+    //fprintf(stderr, "without_nack_prefix : %s\n", without_nack_prefix->getName().toUri().c_str());
+    //fprintf(stderr, "dispatching : %s\n", interest.getName().toUri().c_str());
+
+    std::pair< shared_ptr< pit::Entry >, bool > entry = m_pit.insert(*without_nack_prefix);
+    shared_ptr<pit::Entry> pitEntry = entry.first;
+    bool newEntry = entry.second;
+
+    if(newEntry)
+    {
+       // means we got no pending interest for that nack
+      //fprintf(stderr, "No pending interest for NACK exists\n");
+      m_pit.erase(pitEntry);
+    }
+    else
+    {
+      //fprintf(stderr, "Pending interest for NACK exists\n");
+      shared_ptr<fib::Entry> fibEntry = m_fib.findLongestPrefixMatch(*pitEntry);
+      this->dispatchToStrategy(pitEntry, bind(&Strategy::afterReceiveInterest, _1,
+                                            cref(inFace), cref(interest), fibEntry, pitEntry));
+    }
+    return;
+  }
+  /**CODE FOR NACKS**/
+
   const_cast<Interest&>(interest).setIncomingFaceId(inFace.getId());
   ++m_counters.getNInInterests();
 
@@ -198,9 +236,27 @@ Forwarder::onOutgoingInterest(shared_ptr<pit::Entry> pitEntry, Face& outFace,
   const pit::InRecordCollection& inRecords = pitEntry->getInRecords();
   pit::InRecordCollection::const_iterator pickedInRecord = std::max_element(
     inRecords.begin(), inRecords.end(), bind(&compare_pickInterest, _1, _2, &outFace));
-  BOOST_ASSERT(pickedInRecord != inRecords.end());
-  shared_ptr<Interest> interest = const_pointer_cast<Interest>(
-    pickedInRecord->getInterest().shared_from_this());
+
+
+  //BOOST_ASSERT(pickedInRecord != inRecords.end());
+
+  /**CODE FOR NACKS**/
+
+  shared_ptr<Interest> interest;
+  if(pickedInRecord != inRecords.end())
+  {
+    //fprintf(stderr, "pickedInRecord exists\n");
+    interest = const_pointer_cast<Interest>(
+      pickedInRecord->getInterest().shared_from_this());
+  }
+  else // in this case no inRecod exists for the interest. we still could send but for now drop it
+  {
+    return;
+  }
+  /**CODE FOR NACKS**/
+
+  /*shared_ptr<Interest> interest = const_pointer_cast<Interest>(
+    pickedInRecord->getInterest().shared_from_this());*/
 
   if (wantNewNonce) {
     interest = make_shared<Interest>(*interest);
@@ -219,7 +275,46 @@ Forwarder::onOutgoingInterest(shared_ptr<pit::Entry> pitEntry, Face& outFace,
 void
 Forwarder::onInterestReject(shared_ptr<pit::Entry> pitEntry)
 {
-  if (pitEntry->hasUnexpiredOutRecords()) {
+
+  /**CODE FOR NACKS**/
+
+  NFD_LOG_DEBUG("onInterestReject interest=" << pitEntry->getName());
+
+  //1. create a NACK message
+  std::string nstring = std::string("/NACK").append(pitEntry->getName().toUri());
+  shared_ptr<Name> name = make_shared<Name>(Name(nstring));
+  shared_ptr<Interest> nack = make_shared<Interest>(
+                              *(pitEntry->getInterest().shared_from_this()));
+  nack->setName(*name);
+
+  //2. find all pending downstream faces
+  std::set<shared_ptr<Face> > pendingDownstreams;
+  const pit::InRecordCollection& inRecords = pitEntry->getInRecords();
+  for (pit::InRecordCollection::const_iterator it = inRecords.begin();
+                                               it != inRecords.end(); ++it)
+  {
+    if (it->getExpiry() > time::steady_clock::now()) {
+      pendingDownstreams.insert(it->getFace());
+     // fprintf(stderr, "inserting face %d\n", it->getFace()->getId());
+    }
+  }
+  //3. remove pit entry for pending interenst
+  //this->beforeExpirePendingInterest(*pitEntry);
+  this->onInterestFinalize(pitEntry, false);
+
+  //4 forward the nack, dont create a pit entry for that...
+  //fprintf(stderr, "Forwarding NACK: %s\n", nack->getName().toUri().c_str());
+  std::set<shared_ptr<Face> >::iterator it;
+  for(it = pendingDownstreams.begin(); it!= pendingDownstreams.end(); ++it)
+  {
+    (*it)->sendInterest(*nack);
+  }
+
+  return;
+
+  /**CODE FOR NACKS**/
+
+  /*if (pitEntry->hasUnexpiredOutRecords()) {
     NFD_LOG_ERROR("onInterestReject interest=" << pitEntry->getName() <<
                   " cannot reject forwarded Interest");
     return;
@@ -230,7 +325,7 @@ Forwarder::onInterestReject(shared_ptr<pit::Entry> pitEntry)
   this->cancelUnsatisfyAndStragglerTimer(pitEntry);
 
   // set PIT straggler timer
-  this->setStragglerTimer(pitEntry, false);
+  this->setStragglerTimer(pitEntry, false);*/
 }
 
 void
