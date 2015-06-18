@@ -85,6 +85,9 @@ public:
    */
   void update();
 
+  void addFace(shared_ptr<Face> face);
+  void removeFace(shared_ptr<Face> face);
+
 protected:
 
   void initFaces();

@@ -24,7 +24,7 @@ void SAFEntry::initFaces ()
     if(face != faces.end ())
     {
       //fprintf(stderr, "costs=%d\n",it->getCost());
-      preferedFaces[*face]=it->getCost ();
+      preferedFaces[*face]=it->getCost () + 1; // costs of 0 are not allowed
     }
   }
 }
@@ -99,4 +99,14 @@ bool SAFEntry::evaluateFallback()
   }
 
   return fallback;
+}
+
+void SAFEntry::addFace(shared_ptr<Face> face)
+{
+  //TODO
+}
+
+void SAFEntry::removeFace(shared_ptr<Face> face)
+{
+  //TODO
 }

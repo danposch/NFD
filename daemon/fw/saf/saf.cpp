@@ -3,14 +3,45 @@
 using namespace nfd;
 using namespace nfd::fw;
 
-const Name SAF::STRATEGY_NAME("ndn:/localhost/nfd/strategy/saf");
+NFD_LOG_INIT ("SAF");
+
+const Name SAF::STRATEGY_NAME("ndn:/localhost/nfd/strategy/saf/%FD%01");
 NFD_REGISTER_STRATEGY(SAF);
 
 SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
 {
+  NFD_LOG_INFO("Strategy SAF LOADED");
+
   const FaceTable& ft = getFaceTable();
   int prefixComponets = 0;
   engine = boost::shared_ptr<SAFEngine>(new SAFEngine(ft, prefixComponets));
+
+  this->afterAddFace.connect([this] (shared_ptr<Face> face)
+  {
+    NFD_LOG_INFO("Strategy SAF new Initialized");
+    int prefixComponets = 0;
+    engine = boost::shared_ptr<SAFEngine>(new SAFEngine(getFaceTable(), prefixComponets));
+  });
+
+  this->beforeRemoveFace.connect([this] (shared_ptr<Face> face)
+  {
+    NFD_LOG_INFO("Strategy SAF new Initialized");
+    int prefixComponets = 0;
+    engine = boost::shared_ptr<SAFEngine>(new SAFEngine(getFaceTable(), prefixComponets));
+  });
+
+  /* // The nice way to do it... net to implement this...
+  this->afterAddFace.connect([this] (shared_ptr<Face> face)
+  {
+    NFD_LOG_INFO("Strategy SAF adding new face");
+    engine->addFace (face);
+  });
+
+  this->beforeRemoveFace.connect([this] (shared_ptr<Face> face)
+  {
+    NFD_LOG_INFO("Strategy SAF removing face");
+    engine->removeFace (face);
+  });*/
 }
 
 SAF::~SAF()
@@ -21,6 +52,8 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
 {
   /* Attention!!! interest != pitEntry->interest*/ // necessary to emulate NACKs in ndnSIM2.0
   /* interst could be /NACK/suffix, while pitEntry->getInterest is /suffix */
+
+  fprintf(stderr, "Incoming Interest = %s\n", interest.getName().toUri().c_str());
 
   //find + exclude inface(s) and already tried outface(s)
   std::vector<int> originInFaces = getAllInFaces(pitEntry);
@@ -45,7 +78,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
 
     if(success)
     {
-      //fprintf(stderr, "Transmitting %s on face[%d]\n", int_to_forward.getName().toUri().c_str(), nextHop);
+      fprintf(stderr, "Transmitting %s on face[%d]\n", int_to_forward.getName().toUri().c_str(), nextHop);
       sendInterest(pitEntry, getFaceTable ().get (nextHop));
       return;
     }
@@ -54,7 +87,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
     alreadyTriedFaces.push_back (nextHop);
     nextHop = engine->determineNextHop(int_to_forward, alreadyTriedFaces, fibEntry);
   }
-  //fprintf(stderr, "Rejecting Interest %s\n", int_to_forward.getName ().toUri ().c_str ());
+  fprintf(stderr, "Rejecting Interest %s\n", int_to_forward.getName ().toUri ().c_str ());
   engine->logRejectedInterest(pitEntry, nextHop);
   rejectPendingInterest(pitEntry);
 }
@@ -95,4 +128,8 @@ std::vector<int> SAF::getAllOutFaces(shared_ptr<pit::Entry> pitEntry)
 
   return faces;
 }
+
+signal::Signal< FaceTable, shared_ptr< Face > > & afterAddFace();
+
+signal::Signal< FaceTable, shared_ptr< Face > > & beforeRemoveFace();
 

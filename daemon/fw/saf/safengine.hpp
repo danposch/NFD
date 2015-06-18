@@ -46,6 +46,8 @@ public:
    */
   SAFEngine(const nfd::FaceTable& table, unsigned int prefixComponentNumber);
 
+  ~SAFEngine();
+
   /**
    * @brief determines the next hop for a given interest.
    * @param interest the interest
@@ -89,6 +91,9 @@ public:
    * @param face_id the id of the face that rejected the interest.
    */
   void logRejectedInterest(shared_ptr<pit::Entry> pitEntry, int face_id);
+
+  void addFace(shared_ptr<Face> face);
+  void removeFace(shared_ptr<Face> face);
 
 protected:
   void initFaces(const nfd::FaceTable& table);

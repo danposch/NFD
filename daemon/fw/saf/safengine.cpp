@@ -14,8 +14,16 @@ SAFEngine::SAFEngine(const FaceTable& table, unsigned int prefixComponentNumber)
   updateEventFWT = nfd::scheduler::schedule(delay, bind(&SAFEngine::update, this));
 }
 
+SAFEngine::~SAFEngine()
+{
+  nfd::scheduler::cancel(updateEventFWT);
+}
+
 void SAFEngine::initFaces(const nfd::FaceTable& table)
 {
+
+  NFD_LOG_INFO("Number of faces = " << table.size());
+
   faces.clear ();
   faces.push_back (DROP_FACE_ID);
 
@@ -24,7 +32,15 @@ void SAFEngine::initFaces(const nfd::FaceTable& table)
   for(nfd::FaceTable::const_iterator it = table.begin (); it != table.end (); ++it)
   {
     if((*it)->isLocal())
-      continue;
+    {
+      NFD_LOG_INFO("FOUND LOCAL FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());
+
+      //IF WE WANT TO SUPPORT APPS WE MUST NOT USE CONTIUNE...
+      //continue;
+    }
+    else
+      NFD_LOG_INFO("FOUND REMOTE FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());
+
     faces.push_back((*it)->getId());
     //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
   }
@@ -142,10 +158,48 @@ std::string SAFEngine::extractContentPrefix(nfd::Name name)
   //fprintf(stderr, "extracting from %s\n", name.toUri ().c_str ());
 
   std::string prefix = "";
-  for(int i=0; i <= prefixComponentNumber; i++)
+  for(unsigned int i=0; i <= prefixComponentNumber; i++)
   {
     prefix.append ("/");
     prefix.append (name.get (i).toUri ());
   }
   return prefix;
+}
+
+void SAFEngine::addFace(shared_ptr<Face> face)
+{
+  if(face->isLocal())
+  {
+    //NFD_LOG_INFO("FOUND LOCAL FACE:" << (*it)->getDescription().c_str());
+    return; // local faces are not considered by SAF
+  }
+
+  //NFD_LOG_INFO("FOUND REMOTE FACE:" << (*it)->getDescription().c_str());
+  faces.push_back(face->getId());
+  //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
+  std::sort(faces.begin(), faces.end());
+
+  for(SAFEntryMap::iterator it = entryMap.begin (); it != entryMap.end (); ++it)
+  {
+    it->second->addFace(face);
+  }
+}
+
+void SAFEngine::removeFace(shared_ptr<Face> face)
+{
+  if(face->isLocal())
+  {
+    //NFD_LOG_INFO("FOUND LOCAL FACE:" << (*it)->getDescription().c_str());
+    return; // local faces are not considered by SAF
+  }
+
+  //NFD_LOG_INFO("FOUND REMOTE FACE:" << (*it)->getDescription().c_str());
+  faces.push_back(face->getId());
+  //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
+  std::sort(faces.begin(), faces.end());
+
+  for(SAFEntryMap::iterator it = entryMap.begin (); it != entryMap.end (); ++it)
+  {
+    it->second->removeFace(face);
+  }
 }
