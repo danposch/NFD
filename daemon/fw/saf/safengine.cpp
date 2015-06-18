@@ -33,13 +33,13 @@ void SAFEngine::initFaces(const nfd::FaceTable& table)
   {
     if((*it)->isLocal())
     {
-      NFD_LOG_INFO("FOUND LOCAL FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());
+      //NFD_LOG_INFO("FOUND LOCAL FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());
 
       //IF WE WANT TO SUPPORT APPS WE MUST NOT USE CONTIUNE...
       //continue;
     }
-    else
-      NFD_LOG_INFO("FOUND REMOTE FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());
+    /*else
+      NFD_LOG_INFO("FOUND REMOTE FACE["<< (*it)->getId() << "]:" << (*it)->getDescription().c_str());*/
 
     faces.push_back((*it)->getId());
     //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
