@@ -17,7 +17,7 @@ bool DiskStorage::write(StorageEntry *entry)
   boost::erase_all(dname, "/");
   std::string fname (DISK_STORE_PATH + dname);
 
-  fprintf(stderr, "Write Data to disk: %s --- %lu bytes\n", fname.c_str (), b.size());
+  //fprintf(stderr, "Write Data to disk: %s --- %lu bytes\n", fname.c_str (), b.size());
 
   //write data to disk
   FILE* f = fopen(fname.c_str (), "wb");
@@ -30,7 +30,7 @@ bool DiskStorage::write(StorageEntry *entry)
   fprintf (stderr,"\n");*/
 
   //delete data from MM
-  fprintf(stderr, "Shared Ptr Count = %lu\n", entry->m_data.use_count());
+  //fprintf(stderr, "Shared Ptr Count = %lu\n", entry->m_data.use_count());
   entry->m_data.reset();
 
   return true;
@@ -63,7 +63,7 @@ shared_ptr<const Data> DiskStorage::read(const Name &name)
   // allocate memory to contain the whole file:
   uint8_t *buffer = (uint8_t*) malloc (sizeof(uint8_t)*lSize);
 
-  fprintf(stderr, "Reading Data from disk: %s --- %lu bytes\n", fname.c_str (), sizeof(uint8_t)*lSize);
+  //fprintf(stderr, "Reading Data from disk: %s --- %lu bytes\n", fname.c_str (), sizeof(uint8_t)*lSize);
 
   // copy the file into the buffer:
   if(fread (buffer,sizeof(uint8_t),lSize,f) != ( (size_t)lSize * sizeof(uint8_t)))

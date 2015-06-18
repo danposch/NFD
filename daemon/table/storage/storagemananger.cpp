@@ -9,8 +9,8 @@ StorageMananger::StorageMananger()
 {
 
   std::vector<Storage*> storages;
-  //storages.push_back (new MMStorage());
-  storages.push_back (new DiskStorage());
+  storages.push_back (new MMStorage());
+  //storages.push_back (new DiskStorage());
 
   strategy = new ExampleStorageStrategy(storages);
 }
