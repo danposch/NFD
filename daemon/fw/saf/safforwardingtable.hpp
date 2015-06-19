@@ -30,6 +30,7 @@
 #include "core/logger.hpp"
 
 #include <random>
+#include <pthread.h>
 
 #define MAX_OBSERVATION_PERIODS 10.0
 
@@ -78,6 +79,9 @@ public:
    */
   std::map<int /*layer*/,double/*reliabilty*/> getCurrentReliability(){return this->curReliability;}
 
+  void addFace(shared_ptr<Face> face);
+  void removeFace(shared_ptr<Face> face);
+
   protected:
   void initTable();
   std::map<int, double> calcInitForwardingProb(std::map<int, int> preferedFacesIds, double gamma);
@@ -107,6 +111,8 @@ public:
   double nextRandom();
 
   std::map<int /*layer*/,int/*steps_left*/> observed_layers;
+
+  //pthread_mutex_t mutex;
 };
 
 }

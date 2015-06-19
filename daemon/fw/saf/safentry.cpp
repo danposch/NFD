@@ -5,6 +5,9 @@ using namespace nfd::fw;
 
 SAFEntry::SAFEntry(std::vector<int> faces, shared_ptr<fib::Entry> fibEntry)
 {
+
+  pthread_mutex_init( &mutex, NULL );
+
   this->fibEntry = fibEntry;
   this->faces = faces;
   initFaces();
@@ -31,13 +34,23 @@ void SAFEntry::initFaces ()
 
 int SAFEntry::determineNextHop(const Interest& interest, std::vector<int> alreadyTriedFaces)
 {
-  return ftable->determineNextHop (interest,alreadyTriedFaces);
+  //fprintf(stderr,"determineNextHop LOCK\n");
+  pthread_mutex_lock( &mutex);
+  int nextHop = ftable->determineNextHop (interest,alreadyTriedFaces);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"determineNextHop UNLOCK\n");
+
+  return nextHop;
 }
 
 void SAFEntry::update()
 {
+  //fprintf(stderr,"update LOCK\n");
+  pthread_mutex_lock( &mutex);
   smeasure->update(ftable->getCurrentReliability ());
   ftable->update (smeasure);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"update UNLOCK\n");
   //ftable->crossLayerAdaptation (smeasure);
 
   /*if(!evaluateFallback())
@@ -48,22 +61,38 @@ void SAFEntry::update()
 
 void SAFEntry::logSatisfiedInterest(shared_ptr<pit::Entry> pitEntry,const Face& inFace, const Data& data)
 {
+  //fprintf(stderr,"logSatisfiedInterest LOCK\n");
+  pthread_mutex_lock( &mutex);
   smeasure->logSatisfiedInterest (pitEntry,inFace,data);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"logSatisfiedInterest UNLOCK\n");
 }
 
 void SAFEntry::logExpiredInterest(shared_ptr< pit::Entry > pitEntry)
 {
+  //fprintf(stderr,"logExpiredInterest LOCK\n");
+  pthread_mutex_lock( &mutex);
   smeasure->logExpiredInterest (pitEntry);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"logExpiredInterest UNLOCK\n");
 }
 
 void SAFEntry::logNack(const Face& inFace, const Interest& interest)
 {
+  //fprintf(stderr,"logNack LOCK\n");
+  pthread_mutex_lock( &mutex);
   smeasure->logNack (inFace, interest);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"logNack UNLOCK\n");
 }
 
 void SAFEntry::logRejectedInterest(shared_ptr<pit::Entry> pitEntry, int face_id)
 {
+  //fprintf(stderr,"logRejectedInterest LOCK\n");
+  pthread_mutex_lock( &mutex);
   smeasure->logRejectedInterest(pitEntry, face_id);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"logRejectedInterest UNLOCK\n");
 }
 
 bool SAFEntry::evaluateFallback()
@@ -103,10 +132,21 @@ bool SAFEntry::evaluateFallback()
 
 void SAFEntry::addFace(shared_ptr<Face> face)
 {
-  //TODO
+  //add new entry to meassure..
+  //fprintf(stderr,"Face is to be added\n");
+  pthread_mutex_lock( &mutex);
+  smeasure->addFace(face);
+  ftable->addFace (face);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"Face added\n");
 }
 
 void SAFEntry::removeFace(shared_ptr<Face> face)
 {
-  //TODO
+  //fprintf(stderr,"Face is to be removed\n");
+  pthread_mutex_lock( &mutex);
+  ftable->removeFace (face);
+  smeasure->removeFace (face);
+  pthread_mutex_unlock( &mutex);
+  //fprintf(stderr,"Face removed\n");
 }

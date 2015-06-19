@@ -16,7 +16,7 @@ SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
   int prefixComponets = 0;
   engine = boost::shared_ptr<SAFEngine>(new SAFEngine(ft, prefixComponets));
 
-  this->afterAddFace.connect([this] (shared_ptr<Face> face)
+  /*this->afterAddFace.connect([this] (shared_ptr<Face> face)
   {
     NFD_LOG_INFO("Strategy SAF new Initialized");
     int prefixComponets = 0;
@@ -28,9 +28,9 @@ SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
     NFD_LOG_INFO("Strategy SAF new Initialized");
     int prefixComponets = 0;
     engine = boost::shared_ptr<SAFEngine>(new SAFEngine(getFaceTable(), prefixComponets));
-  });
+  });*/
 
-  /* // The nice way to do it... net to implement this...
+  // The nice way to do it... net to implement this...
   this->afterAddFace.connect([this] (shared_ptr<Face> face)
   {
     NFD_LOG_INFO("Strategy SAF adding new face");
@@ -41,7 +41,7 @@ SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
   {
     NFD_LOG_INFO("Strategy SAF removing face");
     engine->removeFace (face);
-  });*/
+  });
 }
 
 SAF::~SAF()

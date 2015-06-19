@@ -175,6 +175,8 @@ public:
    */
   static int determineContentLayer(const Interest& interest);
 
+  void addFace(shared_ptr<Face> face);
+  void removeFace(shared_ptr<Face> face);
 
 protected:
   SAFStatisticMeasure(std::vector<int> faces);

@@ -8,6 +8,8 @@ NFD_LOG_INIT("SAFForwardingTable");
 
 SAFForwardingTable::SAFForwardingTable(std::vector<int> faceIds, std::map<int, int> preferedFacesIds)
 {
+  //pthread_mutex_init( &mutex, NULL );
+
   for(int i = 0; i < (int)ParameterConfiguration::getInstance ()->getParameter ("MAX_LAYERS"); i++)
     curReliability[i]=ParameterConfiguration::getInstance ()->getParameter ("RELIABILITY_THRESHOLD_MAX");
 
@@ -106,8 +108,10 @@ void SAFForwardingTable::initTable ()
 int SAFForwardingTable::determineNextHop(const Interest& interest, std::vector<int> alreadyTriedFaces)
 {
   //create a copy of the table
+  //pthread_mutex_lock (&mutex);
   matrix<double> tmp_matrix(table);
   std::vector<int> face_list(faces);
+  //pthread_mutex_unlock (&mutex);
 
   int ilayer = SAFStatisticMeasure::determineContentLayer(interest);
   //lets check if sum(Fi in alreadyTriedFaces > R)
@@ -157,6 +161,8 @@ int SAFForwardingTable::determineNextHop(const Interest& interest, std::vector<i
 
 void SAFForwardingTable::update(boost::shared_ptr<SAFStatisticMeasure> stats)
 {
+  //pthread_mutex_lock (&mutex);
+
   std::vector<int> r_faces;  /*reliable faces*/
   std::vector<int> ur_faces; /*unreliable faces*/
   std::vector<int> p_faces;  /*probing faces*/
@@ -280,6 +286,7 @@ void SAFForwardingTable::update(boost::shared_ptr<SAFStatisticMeasure> stats)
   }
   //finally just normalize to remove the rounding errors
   table = normalizeColumns(table);
+  //pthread_mutex_unlock (&mutex);
   NFD_LOG_DEBUG("FWT After Update:\n" << table); /* prints matrix line by line ( (first line), (second line) )*/
 }
 
@@ -660,4 +667,68 @@ double SAFForwardingTable::nextRandom ()
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(0, 1);
   return dis(gen);
+}
+
+void SAFForwardingTable::addFace(shared_ptr<Face> face)
+{
+  faces.push_back (face->getId());
+  std::sort(faces.begin(), faces.end());//order
+  int faceRow = determineRowOfFace (face->getId());
+
+  matrix<double> m (table.size1 () + 1, table.size2 ());
+
+  for (unsigned int j = 0; j < table.size2 (); ++j) /* columns */
+  {
+    for (unsigned int i = 0; i < table.size1 (); ++i) /* rows */
+    {
+      if(i < (unsigned int) faceRow)
+      {
+        m(i,j) = table(i,j);
+      }
+      else if((unsigned int) faceRow == i)
+      {
+        m(i,j) = 1.0 / (double)(faces.size () - 1);
+      }
+      else if (i > (unsigned int) faceRow)
+      {
+        m(i+1,j) = table(i,j);
+      }
+    }
+  }
+
+  table = normalizeColumns (m);
+}
+
+void SAFForwardingTable::removeFace(shared_ptr<Face> face)
+{
+  int faceRow = determineRowOfFace (face->getId());
+
+  if(faceRow == FACE_NOT_FOUND)
+  {
+    NFD_LOG_DEBUG("Could not remove Face from Table as it does not exist");
+    return;
+  }
+
+  matrix<double> m (table.size1 () - 1, table.size2 ());
+
+  for (unsigned int j = 0; j < table.size2 (); ++j) /* columns */
+  {
+    for (unsigned int i = 0; i < table.size1 (); ++i) /* rows */
+
+      if(i < (unsigned int) faceRow)
+      {
+        m(i,j) = table(i,j);
+      }
+      /*else if(faceRow == i)
+      {
+        // skip i-th row.
+      }*/
+      else if (i > (unsigned int) faceRow)
+      {
+        m(i-1,j) = table(i,j);
+      }
+    }
+
+  faces.erase(std::find(faces.begin (),faces.end (),face->getId()));
+  table = normalizeColumns (m);
 }

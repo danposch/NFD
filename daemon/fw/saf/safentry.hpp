@@ -22,6 +22,7 @@
 #include "safforwardingtable.hpp"
 #include "fw/strategy.hpp"
 #include "mratio.hpp"
+#include "pthread.h"
 //#include "mdelay.h"
 
 namespace nfd
@@ -105,6 +106,8 @@ protected:
   shared_ptr<fib::Entry> fibEntry;
 
   int fallbackCounter;
+
+  pthread_mutex_t mutex; //for now the entry locks every access to measure and table. TODO: fine-granular locks!
 };
 
 }
