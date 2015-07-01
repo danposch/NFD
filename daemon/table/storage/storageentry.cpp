@@ -14,6 +14,12 @@ StorageEntry::StorageEntry(shared_ptr<const Data> data, bool isUnsolicited) : En
   this->setData(data, isUnsolicited); //do it again as we need the method of *this
 }
 
+StorageEntry::~StorageEntry()
+{
+  if(m_hasData)
+    StorageMananger::getInstance ()->evict (this);
+}
+
 const Data& StorageEntry::getData() const
 {
   BOOST_ASSERT(this->hasData());
@@ -28,14 +34,14 @@ const Data& StorageEntry::getData() const
   return *d;*/
 
   //We have to store the data here, as the API requires us to return a Data& and
-  // no one takes the responsibility to delete the object later. Bad design we need shared_ptr here!!
-  m_data = StorageMananger::getInstance ()->getData (m_fullName.toUri());
+  // no one takes the responsibility to delete the object later. Bad design we need shared_ptr here!! //maybe we can use the strategy to deal with this
+  m_data = StorageMananger::getInstance ()->getData (const_cast<StorageEntry*>(this));
   return *m_data;
 }
 
 const Name& StorageEntry::getName() const
 {
-  return m_queryName; // return stored name
+  return m_queryName;
 }
 
 const Name& StorageEntry::getFullName() const
@@ -137,15 +143,16 @@ bool StorageEntry::hasData() const
 
 void StorageEntry::setData(shared_ptr<const Data> data, bool isUnsolicited)
 {
-  //todo erase old entry from storage?
-
   m_queryName = data->getName();
   m_fullName = data->getFullName();
   m_freshnessPeriod = data->getFreshnessPeriod();
-  m_data = data;
   m_isUnsolicited = isUnsolicited;
   m_hasData = true;
 
+  //check if we have to erase old entry before inserting new one
+  StorageMananger::getInstance ()->evict (this);
+
+  m_data = data;
   insertCurrentDataToStorage ();
 }
 
@@ -165,7 +172,7 @@ void StorageEntry::updateStaleTime()
 
 void StorageEntry::reset()
 {
-  //TODO implement evict from storage...
+  StorageMananger::getInstance ()->evict (this);
   m_data.reset(); //equivalent to nullptr!
   //m_data = nullptr;
 

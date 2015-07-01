@@ -31,6 +31,7 @@
 #include "table/cs.hpp"
 #include "table/measurements.hpp"
 #include "table/strategy-choice.hpp"
+#include "utils/parameterconfiguration.hpp"
 
 #include "core/config-file.hpp"
 

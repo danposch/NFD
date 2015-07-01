@@ -14,14 +14,17 @@ public:
   StorageStrategy(std::vector<Storage*> storages);
 
   virtual bool insert(StorageEntry *entry) = 0;
-  virtual shared_ptr<const Data> getData(const Name& name) = 0;
+  virtual void evict(StorageEntry *entry) = 0;
+  virtual shared_ptr<const Data> getData(StorageEntry *entry) = 0;
+
+  virtual int storedEntries();
 
 protected:
 
-  Storage* getStorageContaining(const std::string& key);
+  Storage* getStorageContaining(StorageEntry *key);
 
   std::vector<Storage*> storages;
-  std::map<std::string, Storage*> index;
+  std::map<StorageEntry*, Storage*> index;
 
 };
 

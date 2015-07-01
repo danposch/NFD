@@ -11,6 +11,9 @@ ParameterConfiguration::ParameterConfiguration()
   setParameter ("RELIABILITY_THRESHOLD_MIN", P_RELIABILITY_THRESHOLD_MIN);
   setParameter ("RELIABILITY_THRESHOLD_MAX", P_RELIABILITY_THRESHOLD_MAX);
   setParameter ("HISTORY_SIZE",P_HISTORY_SIZE);
+  setParameter ("MaxCsEntries", P_MaxCsEntries);
+  setParameter ("MaxMMStorageEntries", P_MaxMMStorageEntries);
+  setParameter ("MaxDiskStorageEntries", P_MaxDiskStorageEntries);
 }
 
 

@@ -22,6 +22,8 @@
 #include <map>
 #include <string>
 
+/**SAF SETTINGS**/
+
 //default parameters can be overriden:
 #define P_LAMBDA 0.35 // rate to adapt reliability threshold
 #define P_UPDATE_INTERVALL 1000.0 // duration of a period in milliseconds
@@ -34,6 +36,16 @@
 //some additional defines
 #define DROP_FACE_ID -1
 #define FACE_NOT_FOUND -1
+
+/**STORAGE SETTINGS**/
+//#define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
+//#define P_MaxDiskStorageEntries 262144 // 1 GB
+//#define P_MaxCsEntries 393216 //1.5 GB in total
+
+#define P_MaxMMStorageEntries 5
+#define P_MaxDiskStorageEntries 10
+#define P_MaxCsEntries 15
+
 
 /**
  * @brief The ParameterConfiguration class is used to set/get parameters to configure SAF.

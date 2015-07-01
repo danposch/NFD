@@ -5,8 +5,9 @@ namespace cs {
 
 const uint8_t* Storage::buf = (uint8_t*) malloc(BUFFER_LENGTH_DATA*sizeof(uint8_t));
 
-Storage::Storage()
+Storage::Storage(int maxEntries)
 {
+  this->maxEntries = maxEntries;
 }
 
 void Storage::benchStorage ()

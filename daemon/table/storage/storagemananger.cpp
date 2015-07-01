@@ -7,23 +7,29 @@ StorageMananger* StorageMananger::instance = NULL;
 
 StorageMananger::StorageMananger()
 {
-
   std::vector<Storage*> storages;
-  storages.push_back (new MMStorage());
-  //storages.push_back (new DiskStorage());
+
+  //add +1 as Cs evicts after insert.. not before!
+  storages.push_back (new MMStorage(ParameterConfiguration::getInstance()->getParameter("MaxMMStorageEntries") + 1 ));
+  storages.push_back (new DiskStorage(ParameterConfiguration::getInstance()->getParameter("MaxDiskStorageEntries") + 1));
 
   strategy = new ExampleStorageStrategy(storages);
 }
 
 bool StorageMananger::insert(StorageEntry *entry)
 {
-  strategy->insert (entry);
-  return true;
+  return strategy->insert (entry);
 }
 
-shared_ptr<const Data> StorageMananger::getData(const Name& name) const
+void StorageMananger::evict(StorageEntry *entry)
 {
-  return strategy->getData(name);
+  strategy->evict (entry);
+}
+
+
+shared_ptr<const Data> StorageMananger::getData(StorageEntry *entry) const
+{
+  return strategy->getData(entry);
 }
 
 StorageMananger *StorageMananger::getInstance()
@@ -32,6 +38,11 @@ StorageMananger *StorageMananger::getInstance()
     instance = new StorageMananger();
 
   return instance;
+}
+
+int StorageMananger::storedEntries ()
+{
+  return strategy->storedEntries ();
 }
 
 }

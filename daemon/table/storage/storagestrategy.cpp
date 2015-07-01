@@ -9,19 +9,26 @@ StorageStrategy::StorageStrategy(std::vector<Storage*> storages)
   this->storages = storages;
 }
 
-Storage* StorageStrategy::getStorageContaining(const std::string &key)
+Storage* StorageStrategy::getStorageContaining(StorageEntry *key)
 {
-  /*fprintf(stderr, "Searching for: %s\n", key.c_str ());
+  /*fprintf(stderr, "Searching for: %p\n", key);
 
-  for(std::map<std::string, Storage*>::iterator it = index.begin (); it != index.end (); it++)
-      fprintf(stderr, "E[%s]=%d\n", it->first.c_str(), it->second);*/
+  std::map<StorageEntry*, Storage*>::iterator it2;
 
-  std::map<std::string, Storage*>::iterator it = index.find(key);
+  for(it2 = index.begin (); it2 != index.end (); it2++)
+    fprintf(stderr, "entry=%p; storage=%p\n", it2->first,it2->second);*/
+
+  std::map<StorageEntry*, Storage*>::iterator it = index.find(key);
 
   if(it != index.end())
     return it->second;
-  else
-    return NULL;
+
+  return NULL;
+}
+
+int StorageStrategy::storedEntries ()
+{
+  return index.size ();
 }
 
 }

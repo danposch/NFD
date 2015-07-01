@@ -52,6 +52,7 @@ makeDefaultPolicy()
 
 Cs::Cs(size_t nMaxPackets, unique_ptr<Policy> policy)
 {
+  //fprintf(stderr, "NEW CONTENT STORE IS INITIALIZED with SIZE = %d\n", nMaxPackets);
   this->setPolicyImpl(policy);
   m_policy->setLimit(nMaxPackets);
 }
@@ -59,6 +60,7 @@ Cs::Cs(size_t nMaxPackets, unique_ptr<Policy> policy)
 void
 Cs::setLimit(size_t nMaxPackets)
 {
+  //fprintf(stderr, "CONTENT STORE SIZE UPDATE = %d\n", nMaxPackets);
   m_policy->setLimit(nMaxPackets);
 }
 
@@ -98,6 +100,7 @@ Cs::insert(const Data& data, bool isUnsolicited)
   // use .insert because gcc46 does not support .emplace
   /*std::tie(it, isNewEntry) = m_table.insert(EntryImpl(data.shared_from_this(), isUnsolicited));
   EntryImpl& entry = const_cast<EntryImpl&>(*it);*/
+
   std::tie(it, isNewEntry) = m_table.emplace(data.shared_from_this(), isUnsolicited);
   StorageEntry& entry = const_cast<StorageEntry&>(*it);
 

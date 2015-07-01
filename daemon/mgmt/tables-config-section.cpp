@@ -121,7 +121,8 @@ TablesConfigSection::onConfig(const ConfigSection& configSection,
     {
       NFD_LOG_INFO("Setting CS max packets to " << nCsMaxPackets);
 
-      m_cs.setLimit(nCsMaxPackets);
+      //OVERWRITE CSLimit for Storage Strategies.
+      m_cs.setLimit(ParameterConfiguration::getInstance()->getParameter("MaxCsEntries"));
       m_areTablesConfigured = true;
     }
 }

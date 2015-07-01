@@ -6,19 +6,22 @@
 #include "mmstorage.hpp"
 #include "diskstorage.hpp"
 #include "examplestoragestrategy.hpp"
+#include "utils/parameterconfiguration.hpp"
 
 namespace nfd {
 namespace cs {
 
 class StorageEntry; //forward dec.
-//class StorageStrategy;
 
 class StorageMananger
 {
 public:
 
   bool insert(StorageEntry *entry);
-  shared_ptr<const Data> getData(const Name& name) const;
+  void evict(StorageEntry *entry);
+  shared_ptr<const Data> getData(StorageEntry *entry) const;
+
+  int storedEntries();
 
   static StorageMananger* getInstance();
 

@@ -32,3 +32,9 @@ def build(bld):
                 use='daemon-objects unit-tests-main',
                 install_path=None,
                 )
+
+    bld.program(target="../../storage-test",
+                source="storage-test.cpp",
+                use='daemon-objects unit-tests-main',
+                install_path=None,
+                )

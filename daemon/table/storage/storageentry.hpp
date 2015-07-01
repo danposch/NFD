@@ -12,9 +12,14 @@ class StorageEntry : public EntryImpl
 {
 //add friend classes  that are allowed to modify the entries protected attributes
 friend class DiskStorage;
+friend class MMStorage;
+friend class ExampleStorageStrategy;
+
 public:
   StorageEntry(const Name& name);
   StorageEntry(shared_ptr<const Data> data, bool isUnsolicited);
+
+  virtual ~StorageEntry();
 
   virtual const Data& getData() const;
 

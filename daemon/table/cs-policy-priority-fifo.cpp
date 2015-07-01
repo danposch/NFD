@@ -69,6 +69,8 @@ PriorityFifoPolicy::evictEntries()
 {
   BOOST_ASSERT(this->getCs() != nullptr);
 
+  //fprintf(stderr, "PriorityFifoPolicy::evictEntries::getCs()->size() = %d and this->getLimit()= %d \n",getCs()->size(),this->getLimit());
+
   while (this->getCs()->size() > this->getLimit()) {
     this->evictOne();
   }
@@ -93,6 +95,8 @@ PriorityFifoPolicy::evictOne()
   }
 
   this->detachQueue(i);
+  //fprintf(stderr, "CS-Policy Evict: %s\n",i->getName().toUri().c_str());
+  const_cast<StorageEntry&>(*i).reset();
   this->emitSignal(beforeEvict, i);
 }
 

@@ -3,6 +3,9 @@
 
 #include "storagestrategy.hpp"
 #include "storagecomperator.hpp"
+#include <tuple>
+
+#include "core/logger.hpp"
 
 #include "storageentry.hpp"
 
@@ -17,10 +20,13 @@ public:
   ExampleStorageStrategy(std::vector<Storage*> storages);
 
   virtual bool insert(StorageEntry *entry);
+  virtual void evict(StorageEntry *entry);
 
-  virtual shared_ptr<const Data> getData(const Name& name);
+  virtual shared_ptr<const Data> getData(StorageEntry *entry);
 
 protected:
+
+  std::tuple<StorageEntry*, shared_ptr<const Data> > evictRandomEntryFromStorage(Storage* s);
 
   MyQueue squeue;
 

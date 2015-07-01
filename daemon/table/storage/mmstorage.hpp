@@ -2,6 +2,7 @@
 #define MMSTORAGE_HPP
 
 #include "storage.hpp"
+#include "storageentry.hpp"
 
 namespace nfd {
 namespace cs {
@@ -11,10 +12,17 @@ namespace cs {
 class MMStorage : public Storage
 {
 public:
-  MMStorage();
+  MMStorage(int maxEntries);
 
   virtual bool write(StorageEntry *entry);
-  virtual shared_ptr<const Data> read(const Name& name);
+  virtual void evict(StorageEntry *entry);
+  virtual shared_ptr<const Data> read(StorageEntry *entry);
+
+  virtual bool hasSpace();
+
+protected:
+  int currentEntries;
+
 };
 
 }

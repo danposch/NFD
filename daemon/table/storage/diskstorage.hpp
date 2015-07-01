@@ -16,10 +16,16 @@ namespace cs {
 class DiskStorage : public Storage
 {
 public:
-  DiskStorage();
+  DiskStorage(int maxEntries);
 
   virtual bool write(StorageEntry *entry);
-  virtual shared_ptr<const Data> read(const Name& name);
+  virtual void evict(StorageEntry *entry);
+  virtual shared_ptr<const Data> read(StorageEntry *entry);
+  virtual bool hasSpace();
+
+protected:
+  int currentEntries;
+
 };
 
 }
