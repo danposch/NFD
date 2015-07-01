@@ -38,13 +38,13 @@
 #define FACE_NOT_FOUND -1
 
 /**STORAGE SETTINGS**/
-//#define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
-//#define P_MaxDiskStorageEntries 262144 // 1 GB
-//#define P_MaxCsEntries 393216 //1.5 GB in total
+#define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
+#define P_MaxDiskStorageEntries 262144 // 1 GB
+#define P_MaxCsEntries 393216 //1.5 GB in total
 
-#define P_MaxMMStorageEntries 5
-#define P_MaxDiskStorageEntries 10
-#define P_MaxCsEntries 15
+//#define P_MaxMMStorageEntries 5
+//#define P_MaxDiskStorageEntries 10
+//#define P_MaxCsEntries 15
 
 
 /**
