@@ -30,7 +30,7 @@ SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
     engine = boost::shared_ptr<SAFEngine>(new SAFEngine(getFaceTable(), prefixComponets));
   });*/
 
-  // The nice way to do it... net to implement this...
+  // The nice way to do it...
   this->afterAddFace.connect([this] (shared_ptr<Face> face)
   {
     NFD_LOG_INFO("Strategy SAF adding new face");
@@ -78,7 +78,15 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
 
     if(success)
     {
-      fprintf(stderr, "Transmitting %s on face[%d]\n", int_to_forward.getName().toUri().c_str(), nextHop);
+      //fprintf(stderr, "Transmitting %s on face[%d]\n", int_to_forward.getName().toUri().c_str(), nextHop);
+
+      if(getFaceTable ().get (nextHop) == NULL) //due to asynchron face deletion
+      {
+        alreadyTriedFaces.push_back (nextHop);
+        nextHop = engine->determineNextHop(int_to_forward, alreadyTriedFaces, fibEntry);
+        continue;
+      }
+
       sendInterest(pitEntry, getFaceTable ().get (nextHop));
       return;
     }
@@ -87,7 +95,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
     alreadyTriedFaces.push_back (nextHop);
     nextHop = engine->determineNextHop(int_to_forward, alreadyTriedFaces, fibEntry);
   }
-  fprintf(stderr, "Rejecting Interest %s\n", int_to_forward.getName ().toUri ().c_str ());
+  //fprintf(stderr, "Rejecting Interest %s\n", int_to_forward.getName ().toUri ().c_str ());
   engine->logRejectedInterest(pitEntry, nextHop);
   rejectPendingInterest(pitEntry);
 }
