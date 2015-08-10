@@ -194,12 +194,14 @@ void SAFEngine::removeFace(shared_ptr<Face> face)
   }*/
 
   NFD_LOG_INFO("REMOVING REMOTE FACE:" << face->getId());
-  faces.push_back(face->getId());
-  //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
-  std::sort(faces.begin(), faces.end());
 
   for(SAFEntryMap::iterator it = entryMap.begin (); it != entryMap.end (); ++it)
   {
     it->second->removeFace(face);
   }
+
+  faces.erase(std::find(faces.begin (), faces.end (), face->getId()));
+  //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
+  std::sort(faces.begin(), faces.end());
+
 }
