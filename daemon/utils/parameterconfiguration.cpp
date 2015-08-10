@@ -14,6 +14,7 @@ ParameterConfiguration::ParameterConfiguration()
   setParameter ("MaxCsEntries", P_MaxCsEntries);
   setParameter ("MaxMMStorageEntries", P_MaxMMStorageEntries);
   setParameter ("MaxDiskStorageEntries", P_MaxDiskStorageEntries);
+  setParameter ("SAFPrefixComponents", P_SAFPrefixComponents);
 }
 
 

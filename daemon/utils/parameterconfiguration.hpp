@@ -42,6 +42,8 @@
 #define P_MaxDiskStorageEntries 262144 // 1 GB
 #define P_MaxCsEntries 393216 //1.5 GB in total
 
+#define P_SAFPrefixComponents 1
+
 //#define P_MaxMMStorageEntries 5
 //#define P_MaxDiskStorageEntries 10
 //#define P_MaxCsEntries 15
