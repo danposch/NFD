@@ -174,7 +174,7 @@ void SAFEngine::addFace(shared_ptr<Face> face)
     return; // local faces are not considered by SAF
   }*/
 
-  NFD_LOG_INFO("ADDING REMOTE FACE:" << face->getDescription().c_str());
+  NFD_LOG_INFO("ADDING REMOTE FACE:" << face->getId());
   faces.push_back(face->getId());
   //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
   std::sort(faces.begin(), faces.end());
@@ -193,7 +193,7 @@ void SAFEngine::removeFace(shared_ptr<Face> face)
     return; // local faces are not considered by SAF
   }*/
 
-  NFD_LOG_INFO("REMOVING REMOTE FACE:" << face->getDescription().c_str());
+  NFD_LOG_INFO("REMOVING REMOTE FACE:" << face->getId());
   faces.push_back(face->getId());
   //fbMap[(*it)->getId()] = boost::shared_ptr<FaceLimitManager>(new FaceLimitManager(*it));
   std::sort(faces.begin(), faces.end());
