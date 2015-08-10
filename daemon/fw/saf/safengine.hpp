@@ -20,6 +20,7 @@
 
 #include "core/scheduler.hpp"
 #include "fw/face-table.hpp"
+#include "face/face.hpp"
 #include <vector>
 //#include "limits/facelimitmanager.h"
 #include "core/logger.hpp"

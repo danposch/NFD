@@ -687,7 +687,8 @@ void SAFForwardingTable::addFace(shared_ptr<Face> face)
       }
       else if((unsigned int) faceRow == i)
       {
-        m(i,j) = 1.0 / (double)(faces.size () - 1);
+        //m(i,j) = 1.0 / (double)(faces.size () - 1);
+        m(i,j) = 0.0;
       }
       else if (i > (unsigned int) faceRow)
       {

@@ -52,7 +52,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
   /* Attention!!! interest != pitEntry->interest*/ // necessary to emulate NACKs in ndnSIM2.0
   /* interst could be /NACK/suffix, while pitEntry->getInterest is /suffix */
 
-  fprintf(stderr, "Incoming Interest = %s\n", interest.getName().toUri().c_str());
+  //fprintf(stderr, "Incoming Interest = %s\n", interest.getName().toUri().c_str());
 
   //find + exclude inface(s) and already tried outface(s)
   std::vector<int> originInFaces = getAllInFaces(pitEntry);
