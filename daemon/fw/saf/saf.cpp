@@ -52,7 +52,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
   /* Attention!!! interest != pitEntry->interest*/ // necessary to emulate NACKs in ndnSIM2.0
   /* interst could be /NACK/suffix, while pitEntry->getInterest is /suffix */
 
-  //fprintf(stderr, "Incoming Interest = %s\n", interest.getName().toUri().c_str());
+  NFD_LOG_DEBUG("Incoming Interest: " << interest.getName().toUri().c_str());
 
   //find + exclude inface(s) and already tried outface(s)
   std::vector<int> originInFaces = getAllInFaces(pitEntry);
@@ -83,9 +83,11 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
       {
         alreadyTriedFaces.push_back (nextHop);
         nextHop = engine->determineNextHop(int_to_forward, alreadyTriedFaces, fibEntry);
+        NFD_LOG_DEBUG("Selcted Face has been deleted already\n");
         continue;
       }
 
+      NFD_LOG_DEBUG("Sending Interest: " << interest.getName().toUri().c_str() << " on Face: " << nextHop);
       sendInterest(pitEntry, getFaceTable ().get (nextHop));
       return;
     }
@@ -95,6 +97,7 @@ void SAF::afterReceiveInterest(const Face& inFace, const Interest& interest ,sha
     nextHop = engine->determineNextHop(int_to_forward, alreadyTriedFaces, fibEntry);
   }
   //fprintf(stderr, "Rejecting Interest %s\n", int_to_forward.getName ().toUri ().c_str ());
+  NFD_LOG_DEBUG("Rejecting Interest: " << interest.getName().toUri().c_str());
   engine->logRejectedInterest(pitEntry, nextHop);
   rejectPendingInterest(pitEntry);
 }
