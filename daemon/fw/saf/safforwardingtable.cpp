@@ -517,6 +517,12 @@ int SAFForwardingTable::determineRowOfFace(int face_id, boost::numeric::ublas::m
     return FACE_NOT_FOUND;
   }
 
+  if(std::find(faces.begin (), faces.end (), face_id) == faces.end ())
+  {
+    fprintf(stderr, "Face Not Found!!!\n");
+    return FACE_NOT_FOUND;
+  }
+
   //determine row of face
   int faceRow = FACE_NOT_FOUND;
   std::sort(faces.begin(), faces.end());//order
@@ -673,9 +679,10 @@ void SAFForwardingTable::addFace(shared_ptr<Face> face)
 {
   faces.push_back (face->getId());
   std::sort(faces.begin(), faces.end());//order
-  int faceRow = determineRowOfFace (face->getId());
 
   matrix<double> m (table.size1 () + 1, table.size2 ());
+
+  int faceRow = determineRowOfFace (face->getId(), m, faces);
 
   for (unsigned int j = 0; j < table.size2 (); ++j) /* columns */
   {
