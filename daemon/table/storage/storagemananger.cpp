@@ -11,7 +11,7 @@ StorageMananger::StorageMananger()
 
   //add +1 as Cs evicts after insert.. not before!
   storages.push_back (new MMStorage(ParameterConfiguration::getInstance()->getParameter("MaxMMStorageEntries") + 1 ));
-  storages.push_back (new DiskStorage(ParameterConfiguration::getInstance()->getParameter("MaxDiskStorageEntries") + 1));
+  //storages.push_back (new DiskStorage(ParameterConfiguration::getInstance()->getParameter("MaxDiskStorageEntries") + 1));
 
   strategy = new ExampleStorageStrategy(storages);
 }
