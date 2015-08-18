@@ -28,6 +28,7 @@
 #include "iostream"
 #include "climits"
 #include "core/logger.hpp"
+#include <string>
 
 #include <random>
 #include <pthread.h>

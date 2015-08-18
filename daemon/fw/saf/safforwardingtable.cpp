@@ -167,7 +167,10 @@ void SAFForwardingTable::update(boost::shared_ptr<SAFStatisticMeasure> stats)
   std::vector<int> ur_faces; /*unreliable faces*/
   std::vector<int> p_faces;  /*probing faces*/
 
-  NFD_LOG_DEBUG("FWT Before Update:\n" << table); /* prints matrix line by line ( (first line), (second line) )*/
+  std::string fstring = "FaceIds:";
+  for(std::vector<int>::iterator it = faces.begin (); it != faces.end (); it++)
+    fstring += +" " + std::to_string(*it)+",";
+  NFD_LOG_DEBUG("FWT Before Update:\n"+fstring+"\n" << table); /* prints matrix line by line ( (first line), (second line) )*/
 
   for(int layer = 0; layer < (int)ParameterConfiguration::getInstance ()->getParameter ("MAX_LAYERS"); layer++) // for each layer
   {
@@ -684,6 +687,8 @@ void SAFForwardingTable::addFace(shared_ptr<Face> face)
 
   int faceRow = determineRowOfFace (face->getId(), m, faces);
 
+  fprintf(stderr, "faceRow %d\n", faceRow);
+
   for (unsigned int j = 0; j < table.size2 (); ++j) /* columns */
   {
     for (unsigned int i = 0; i < table.size1 (); ++i) /* rows */
@@ -702,8 +707,9 @@ void SAFForwardingTable::addFace(shared_ptr<Face> face)
         m(i+1,j) = table(i,j);
       }
     }
+    if( (unsigned int) faceRow == table.size1())
+      m(faceRow,j) = 0.0;
   }
-
   table = normalizeColumns (m);
 }
 
