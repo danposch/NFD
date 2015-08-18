@@ -39,8 +39,10 @@
 
 /**STORAGE SETTINGS**/
 #define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
-#define P_MaxDiskStorageEntries 262144 // 1 GB
-#define P_MaxCsEntries 393216 //1.5 GB in total
+//#define P_MaxDiskStorageEntries 262144 // 1 GB
+//#define P_MaxCsEntries 393216 //1.5 GB in total
+#define P_MaxDiskStorageEntries 0 // 0 GB
+#define P_MaxCsEntries 131072 //0.5 GB in total
 
 #define P_SAFPrefixComponents 1
 
