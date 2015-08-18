@@ -1,5 +1,27 @@
 #include "parameterconfiguration.hpp"
 
+/**SAF SETTINGS**/
+//default parameters can be overriden:
+#define P_LAMBDA 0.35 // rate to adapt reliability threshold
+#define P_UPDATE_INTERVALL 1000.0 // duration of a period in milliseconds
+#define P_MAX_LAYERS 1 //number of layers per content
+#define P_DROP_FACE_ID -1 // the id of the virtual dropping face
+#define P_RELIABILITY_THRESHOLD_MIN 0.75 // the minimum required reliablity
+#define P_RELIABILITY_THRESHOLD_MAX 0.999 // the maximum enforced reliability
+#define P_HISTORY_SIZE 6 // sample size of the windows for the statisticmeasure class.
+#define P_SAFPrefixComponents 1
+
+/**STORAGE SETTINGS**/
+#define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
+//#define P_MaxDiskStorageEntries 262144 // 1 GB
+//#define P_MaxCsEntries 393216 //1.5 GB in total
+#define P_MaxDiskStorageEntries 0 // 0 GB
+#define P_MaxCsEntries 131072 //0.5 GB in total
+
+//#define P_MaxMMStorageEntries 5
+//#define P_MaxDiskStorageEntries 10
+//#define P_MaxCsEntries 15
+
 ParameterConfiguration* ParameterConfiguration::instance = NULL;
 
 ParameterConfiguration::ParameterConfiguration()
