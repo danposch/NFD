@@ -12,11 +12,11 @@
 #define P_SAFPrefixComponents 1
 
 /**STORAGE SETTINGS**/
-#define P_MaxMMStorageEntries 131072 // 500MB by 4096 byte large packets
+#define P_MaxMMStorageEntries 61035 // 250MB by 4096 byte large packets
 //#define P_MaxDiskStorageEntries 262144 // 1 GB
 //#define P_MaxCsEntries 393216 //1.5 GB in total
 #define P_MaxDiskStorageEntries 0 // 0 GB
-#define P_MaxCsEntries 131072 //0.5 GB in total
+#define P_MaxCsEntries 61035 //ca 250 MB in total by 4096 byte large packets
 
 //#define P_MaxMMStorageEntries 5
 //#define P_MaxDiskStorageEntries 10

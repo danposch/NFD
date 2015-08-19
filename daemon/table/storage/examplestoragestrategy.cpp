@@ -44,7 +44,7 @@ bool ExampleStorageStrategy::insert(StorageEntry *entry)
     }
     if(!entryMoved)
     {
-      fprintf(stderr, "ExampleStorageStrategy::insertCritical ERROR could not move entry to another storage!!\n");
+      NFD_LOG_DEBUG("ERROR could not move entry to another storage!!\n");
     }
   }
 
@@ -55,7 +55,7 @@ bool ExampleStorageStrategy::insert(StorageEntry *entry)
     return true;
   }
 
-  fprintf(stderr, "Critical Error when writing Entry\n");
+  NFD_LOG_DEBUG("Critical Error when writing Entry\n");
   return false;
 }
 
@@ -90,7 +90,7 @@ shared_ptr<const Data> ExampleStorageStrategy::getData(StorageEntry *entry)
 
   if(s == NULL)
   {
-    fprintf(stderr, "Could not find data in Index, can not fetch it. This should not happen!\n");
+    NFD_LOG_DEBUG("Could not find data in Index, can not fetch it. This should not happen!\n");
     return NULL;
   }
 
@@ -146,7 +146,7 @@ shared_ptr<const Data> ExampleStorageStrategy::getData(StorageEntry *entry)
       }
 
       if(!entryMoved)
-        fprintf(stderr, "ExampleStorageStrategy::getData Critical Error Could not move Entry to another storage!!\n");
+        NFD_LOG_DEBUG("ExampleStorageStrategy::getData Critical Error Could not move Entry to another storage!");
     }
 
     //now the diry part... write data that has been read back to the entry

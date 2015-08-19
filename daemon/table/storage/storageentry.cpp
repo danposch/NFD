@@ -3,6 +3,8 @@
 namespace nfd {
 namespace cs {
 
+NFD_LOG_INIT ("StorageEntry");
+
 StorageEntry::StorageEntry(const Name &name) : EntryImpl(name)
 {
   m_queryName = name;
@@ -173,6 +175,7 @@ void StorageEntry::updateStaleTime()
 void StorageEntry::reset()
 {
   StorageMananger::getInstance ()->evict (this);
+  NFD_LOG_DEBUG("Evicting: " << m_fullName);
   m_data.reset(); //equivalent to nullptr!
   //m_data = nullptr;
 
