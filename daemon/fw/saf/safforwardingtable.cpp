@@ -687,8 +687,6 @@ void SAFForwardingTable::addFace(shared_ptr<Face> face)
 
   int faceRow = determineRowOfFace (face->getId(), m, faces);
 
-  fprintf(stderr, "faceRow %d\n", faceRow);
-
   for (unsigned int j = 0; j < table.size2 (); ++j) /* columns */
   {
     for (unsigned int i = 0; i < table.size1 (); ++i) /* rows */
