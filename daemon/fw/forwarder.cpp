@@ -29,6 +29,8 @@
 #include "strategy.hpp"
 #include <boost/random/uniform_int_distribution.hpp>
 
+#define CACHE_LOG "/tmp/nfd_cachehits.txt"
+
 namespace nfd {
 
 NFD_LOG_INIT("Forwarder");
@@ -45,11 +47,24 @@ Forwarder::Forwarder()
   , m_strategyChoice(m_nameTree, fw::makeDefaultStrategy(*this))
 {
   fw::installStrategies(*this);
+
+  cache_hits = 0;
+  cache_misses = 0;
+  if(boost::filesystem::exists (CACHE_LOG))
+  {
+    boost::filesystem::remove (CACHE_LOG);
+  }
 }
 
 Forwarder::~Forwarder()
 {
-
+  std::ofstream outfile (CACHE_LOG, std::ofstream::out);
+  std::string s = "cache hits: ";
+  s = s.append(boost::lexical_cast<std::string>(cache_hits));
+  s = s.append ("\ncache_misses:");
+  s = s.append (boost::lexical_cast<std::string>(cache_misses));
+  outfile.write (s.c_str (), s.size ());
+  outfile.close();
 }
 
 void
@@ -158,6 +173,7 @@ Forwarder::onContentStoreMiss(const Face& inFace,
   // dispatch to strategy
   this->dispatchToStrategy(pitEntry, bind(&Strategy::afterReceiveInterest, _1,
                                           cref(inFace), cref(interest), fibEntry, pitEntry));
+  cache_misses++;
 }
 
 void
@@ -176,6 +192,11 @@ Forwarder::onContentStoreHit(const Face& inFace,
 
   // goto outgoing Data pipeline
   this->onOutgoingData(data, *const_pointer_cast<Face>(inFace.shared_from_this()));
+
+  //DP: log this hit in order to get cache hit ratio of a NFD node
+  //m_faceTable.get(FACEID_CONTENT_STORE)->sendData(data);
+  //++m_counters.getNCacheHits();
+  cache_hits++;
 }
 
 void

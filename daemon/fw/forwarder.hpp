@@ -36,6 +36,9 @@
 #include "table/measurements.hpp"
 #include "table/strategy-choice.hpp"
 #include "table/dead-nonce-list.hpp"
+#include <fstream>
+#include "boost/lexical_cast.hpp"
+#include "boost/filesystem.hpp"
 
 namespace nfd {
 
@@ -198,7 +201,8 @@ PROTECTED_WITH_TESTS_ELSE_PRIVATE:
 
 private:
   ForwarderCounters m_counters;
-
+  unsigned int cache_hits;
+  unsigned int cache_misses;
   FaceTable m_faceTable;
 
   // tables
