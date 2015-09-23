@@ -59,7 +59,7 @@ Forwarder::Forwarder()
 Forwarder::~Forwarder()
 {
   std::ofstream outfile (CACHE_LOG, std::ofstream::out);
-  std::string s = "cache hits: ";
+  std::string s = "cache_hits: ";
   s = s.append(boost::lexical_cast<std::string>(cache_hits));
   s = s.append ("\ncache_misses:");
   s = s.append (boost::lexical_cast<std::string>(cache_misses));
