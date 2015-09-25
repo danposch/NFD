@@ -134,7 +134,7 @@ boost::shared_ptr<PIC> OMCCRF::findPICEntry(int face_id, std::string prefix)
   if(it == pmap.end())
   {
     fprintf(stderr, "Error could not find prefix in pmap!\n");
-    return nullptr;
+    return boost::shared_ptr<PIC>();
   }
 
   FacePicEntryMap::iterator k = pmap[prefix].find(face_id);
@@ -142,7 +142,7 @@ boost::shared_ptr<PIC> OMCCRF::findPICEntry(int face_id, std::string prefix)
   if(k == pmap[prefix].end())
   {
     fprintf(stderr, "Error could not find PICEntry for face\n");
-    return nullptr;
+    return boost::shared_ptr<PIC>();
   }
 
   return pmap[prefix][face_id];
