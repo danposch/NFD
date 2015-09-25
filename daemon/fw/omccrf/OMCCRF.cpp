@@ -100,7 +100,7 @@ void OMCCRF::beforeSatisfyInterest(shared_ptr<pit::Entry> pitEntry,const Face& i
 
   boost::shared_ptr<PIC> p = findPICEntry(inFace.getId (), extractContentPrefix (data.getName ()));
 
-  if(p != NULL)
+  if(p)
   {
     p->decrease ();
     p->update ();
@@ -117,7 +117,7 @@ void OMCCRF::beforeExpirePendingInterest(shared_ptr< pit::Entry > pitEntry)
   for(unsigned int i = 0; i < faces.size (); i++)
   {
     boost::shared_ptr<PIC> p = findPICEntry((*faces.begin ()), extractContentPrefix (pitEntry->getName ()));
-    if(p != NULL)
+    if(p)
     {
       p->decrease ();
       p->update ();
@@ -134,7 +134,7 @@ boost::shared_ptr<PIC> OMCCRF::findPICEntry(int face_id, std::string prefix)
   if(it == pmap.end())
   {
     fprintf(stderr, "Error could not find prefix in pmap!\n");
-    return NULL;
+    return nullptr;
   }
 
   FacePicEntryMap::iterator k = pmap[prefix].find(face_id);
@@ -142,7 +142,7 @@ boost::shared_ptr<PIC> OMCCRF::findPICEntry(int face_id, std::string prefix)
   if(k == pmap[prefix].end())
   {
     fprintf(stderr, "Error could not find PICEntry for face\n");
-    return NULL;
+    return nullptr;
   }
 
   return pmap[prefix][face_id];
