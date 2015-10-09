@@ -26,6 +26,9 @@ void OMCCRF::afterReceiveInterest(const Face& inFace, const Interest& interest ,
     return;
   }
 
+  if(pitEntry->hasUnexpiredOutRecords())
+    return;
+
   std::string prefix = extractContentPrefix(pitEntry->getInterest().getName());
 
   if(pmap.find (prefix) == pmap.end ()) //check if prefix is listed if not create it
