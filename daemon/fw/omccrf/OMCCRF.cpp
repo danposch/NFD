@@ -8,11 +8,11 @@ NFD_REGISTER_STRATEGY(OMCCRF);
 
 OMCCRF::OMCCRF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
 {
+  prefixComponents = ParameterConfiguration::getInstance ()->getParameter ("PREFIX_COMPONENT");
 }
 
 OMCCRF::~OMCCRF()
-{
-}
+{}
 
 void OMCCRF::afterReceiveInterest(const Face& inFace, const Interest& interest ,shared_ptr<fib::Entry> fibEntry, shared_ptr<pit::Entry> pitEntry)
 {
@@ -26,8 +26,16 @@ void OMCCRF::afterReceiveInterest(const Face& inFace, const Interest& interest ,
     return;
   }
 
-  if(pitEntry->hasUnexpiredOutRecords())
-    return;
+  if(pitEntry->hasUnexpiredOutRecords()) //possible rtx or just the same request from a "different" source
+    {
+      if(!isRtx(inFace, interest))
+      {
+        addToKnownInFaces(inFace, interest); // other client/node requests same content
+        return; // this aggregates the interest
+      }
+      //else just continue as it was a normal interest..
+    }
+  addToKnownInFaces(inFace, interest);
 
   std::string prefix = extractContentPrefix(pitEntry->getInterest().getName());
 
@@ -67,7 +75,7 @@ void OMCCRF::afterReceiveInterest(const Face& inFace, const Interest& interest ,
   }
 
   //now draw a random number and choose outgoing face
-  double rvalue = this->nextRandom();
+  double rvalue = nextRandom();
   sum = 0.0;
   int out_face_id = -1;
   for(std::map<int, double>::iterator k = wmap.begin (); k!=wmap.end (); k++)
@@ -103,12 +111,12 @@ void OMCCRF::beforeSatisfyInterest(shared_ptr<pit::Entry> pitEntry,const Face& i
 
   boost::shared_ptr<PIC> p = findPICEntry(inFace.getId (), extractContentPrefix (data.getName ()));
 
-  if(p)
+  if(p != NULL)
   {
     p->decrease ();
     p->update ();
   }
-
+  clearKnownFaces(pitEntry->getInterest());
   Strategy::beforeSatisfyInterest (pitEntry,inFace, data);
 }
 
@@ -120,13 +128,13 @@ void OMCCRF::beforeExpirePendingInterest(shared_ptr< pit::Entry > pitEntry)
   for(unsigned int i = 0; i < faces.size (); i++)
   {
     boost::shared_ptr<PIC> p = findPICEntry((*faces.begin ()), extractContentPrefix (pitEntry->getName ()));
-    if(p)
+    if(p != NULL)
     {
       p->decrease ();
       p->update ();
     }
   }
-
+  clearKnownFaces(pitEntry->getInterest());
   Strategy::beforeExpirePendingInterest (pitEntry);
 }
 
@@ -155,7 +163,7 @@ boost::shared_ptr<PIC> OMCCRF::findPICEntry(int face_id, std::string prefix)
 std::string OMCCRF::extractContentPrefix(nfd::Name name)
 {
   std::string prefix = "";
-  for(int i=0; i <= PREFIX_COMPONENT; i++)
+  for(int i=0; i <= prefixComponents; i++)
   {
     prefix.append ("/");
     prefix.append (name.get (i).toUri ());
@@ -187,6 +195,47 @@ std::vector<int> OMCCRF::getAllInFaces(shared_ptr<pit::Entry> pitEntry)
   return faces;
 }
 
+bool OMCCRF::isRtx (const nfd::Face& inFace, const ndn::Interest& interest)
+{
+  KnownInFaceMap::iterator it = inFaceMap.find (interest.getName ().toUri());
+  if(it == inFaceMap.end ())
+    return false;
+
+  for(std::list<int>::iterator k = it->second.begin(); k != it->second.end(); k++)
+  {
+    if((*k) == inFace.getId ())
+      return true;
+  }
+
+  return false;
+}
+
+void OMCCRF::addToKnownInFaces(const nfd::Face& inFace, const ndn::Interest&interest)
+{
+  KnownInFaceMap::iterator it = inFaceMap.find (interest.getName ().toUri());
+
+  if(it == inFaceMap.end ())
+    inFaceMap[interest.getName ().toUri ()] = std::list<int>();
+
+  std::list<int> list = inFaceMap[interest.getName ().toUri ()];
+
+  if(std::find(list.begin (),list.end (), inFace.getId()) == list.end ()) //if face not known as in face
+    inFaceMap[interest.getName ().toUri ()].push_back(inFace.getId());    //remember it
+}
+
+void OMCCRF::clearKnownFaces(const ndn::Interest&interest)
+{
+  KnownInFaceMap::iterator it = inFaceMap.find (interest.getName ().toUri());
+
+  if(it == inFaceMap.end ())
+  {
+    //This may happen due to bad behavior of NDN core code!
+    //beforeSatisfyInterest may be called multiple times for 1 pit entry..
+    return;
+  }
+  inFaceMap.erase (it);
+}
+
 double OMCCRF::nextRandom ()
 {
   std::random_device rd;
@@ -194,4 +243,3 @@ double OMCCRF::nextRandom ()
   std::uniform_real_distribution<> dis(0, 1);
   return dis(gen);
 }
-

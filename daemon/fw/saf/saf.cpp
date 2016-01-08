@@ -13,7 +13,7 @@ SAF::SAF(Forwarder &forwarder, const Name &name) : Strategy(forwarder, name)
   NFD_LOG_INFO("Strategy SAF LOADED");
 
   const FaceTable& ft = getFaceTable();
-  engine = boost::shared_ptr<SAFEngine>(new SAFEngine(ft, ParameterConfiguration::getInstance ()->getParameter ("SAFPrefixComponents")));
+  engine = boost::shared_ptr<SAFEngine>(new SAFEngine(ft, ParameterConfiguration::getInstance ()->getParameter ("PREFIX_COMPONENT")));
 
   this->afterAddFace.connect([this] (shared_ptr<Face> face)
   {

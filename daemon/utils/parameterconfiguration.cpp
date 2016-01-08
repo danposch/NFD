@@ -9,7 +9,7 @@
 #define P_RELIABILITY_THRESHOLD_MIN 0.75 // the minimum required reliablity
 #define P_RELIABILITY_THRESHOLD_MAX 0.999 // the maximum enforced reliability
 #define P_HISTORY_SIZE 6 // sample size of the windows for the statisticmeasure class.
-#define P_SAFPrefixComponents 1
+#define P_PREFIX_COMPONENT 1
 
 /**STORAGE SETTINGS**/
 #define P_MaxMMStorageEntries 61035 // 250MB by 4096 byte large packets
@@ -36,7 +36,7 @@ ParameterConfiguration::ParameterConfiguration()
   setParameter ("MaxCsEntries", P_MaxCsEntries);
   setParameter ("MaxMMStorageEntries", P_MaxMMStorageEntries);
   setParameter ("MaxDiskStorageEntries", P_MaxDiskStorageEntries);
-  setParameter ("SAFPrefixComponents", P_SAFPrefixComponents);
+  setParameter ("PREFIX_COMPONENT", P_PREFIX_COMPONENT);
 }
 
 
