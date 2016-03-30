@@ -10,6 +10,7 @@
 #define P_RELIABILITY_THRESHOLD_MAX 0.999 // the maximum enforced reliability
 #define P_HISTORY_SIZE 6 // sample size of the windows for the statisticmeasure class.
 #define P_PREFIX_COMPONENT 1
+#define P_USE_RTX_DETECTION 0
 
 /**STORAGE SETTINGS**/
 #define P_MaxMMStorageEntries 61035 // 250MB by 4096 byte large packets
@@ -37,6 +38,7 @@ ParameterConfiguration::ParameterConfiguration()
   setParameter ("MaxMMStorageEntries", P_MaxMMStorageEntries);
   setParameter ("MaxDiskStorageEntries", P_MaxDiskStorageEntries);
   setParameter ("PREFIX_COMPONENT", P_PREFIX_COMPONENT);
+  setParameter ("RTX_DETECTION", P_USE_RTX_DETECTION);
 }
 
 
